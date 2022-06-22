@@ -1,6 +1,6 @@
 <?php
 
-namespace Caritech\LaravelFileHandler\Models;
+namespace YGThor\LaravelFileHandler\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;

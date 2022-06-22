@@ -1,6 +1,6 @@
 <?php
 
-namespace Caritech\LaravelFileHandler;
+namespace YGThor\LaravelFileHandler;
 
 use Caritech\LaravelFileHandler\Models\FileHandle;
 use Storage;

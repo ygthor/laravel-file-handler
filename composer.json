@@ -43,10 +43,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "ygthor\\LaravelFileHandler\\LaravelFileHandlerServiceProvider"
+                "YGThor\\LaravelFileHandler\\LaravelFileHandlerServiceProvider"
             ],
             "aliases": {
-                "LaravelFileHandler": "ygthor\\LaravelFileHandler\\LaravelFileHandlerFacade"
+                "LaravelFileHandler": "YGThor\\LaravelFileHandler\\LaravelFileHandlerFacade"
             }
         }
     }
