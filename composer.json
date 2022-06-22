@@ -1,17 +1,17 @@
 {
-    "name": "caritech/laravel-file-handler",
+    "name": "ygthor/laravel-file-handler",
     "description": "For handle S3 and file using drupal's file approach",
     "keywords": [
-        "caritech",
+        "ygthor",
         "laravel-file-handler"
     ],
-    "homepage": "https://github.com/caritech/laravel-file-handler",
+    "homepage": "https://github.com/ygthor/laravel-file-handler",
     "license": "MIT",
     "type": "library",
     "authors": [
         {
             "name": "YG Thor",
-            "email": "yuguan@caritech.com",
+            "email": "yuguan@ygthor.com",
             "role": "Developer"
         }
     ],
@@ -25,12 +25,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Caritech\\LaravelFileHandler\\": "src"
+            "ygthor\\LaravelFileHandler\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Caritech\\LaravelFileHandler\\Tests\\": "tests"
+            "ygthor\\LaravelFileHandler\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -44,10 +44,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Caritech\\LaravelFileHandler\\LaravelFileHandlerServiceProvider"
+                "ygthor\\LaravelFileHandler\\LaravelFileHandlerServiceProvider"
             ],
             "aliases": {
-                "LaravelFileHandler": "Caritech\\LaravelFileHandler\\LaravelFileHandlerFacade"
+                "LaravelFileHandler": "ygthor\\LaravelFileHandler\\LaravelFileHandlerFacade"
             }
         }
     }
