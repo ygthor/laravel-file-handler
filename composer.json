@@ -24,12 +24,12 @@
     },
     "autoload": {
         "psr-4": {
-            "ygthor\\LaravelFileHandler\\": "src"
+            "YGThor\\LaravelFileHandler\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "ygthor\\LaravelFileHandler\\Tests\\": "tests"
+            "YGThor\\LaravelFileHandler\\Tests\\": "tests"
         }
     },
     "scripts": {
