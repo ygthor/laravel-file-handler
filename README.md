@@ -66,64 +66,80 @@ AWS_USE_PATH_STYLE_ENDPOINT=false
 ],
 ```
 
+## Functions available
+```php
+function setDisk($disk='s3'){}
 
-## Usage
+function setFilename($value){}
 
-* Need to add column such as fid_photo, fid_photo_2 in source table
+function setContent($value){}
+
+# set all variable object, use together with upload() function
+function set($arr){}
+	$arr = [
+		'disk' => '', //default s3
+		'filename' => '', //required
+		'content' => '',  //required, data from file_get_contents()
+		'model_name' => '', // optional, for ease in reverse checking
+		'model_primary_key' => '', // optional, for ease in reverse checking
+		'model_column' => '', // optional, for ease in reverse checking
+		'uploader_name' => '', // optional, for ease in reverse checking
+		'status' => '', // default permanent, if is temporary, file will delete automatically after specific time (feature still In DEV)
+	];
+
+# use after set()
+function upload($filename=null, $content=null){}
+
+function getS3Path($fid=5){}
+function getS3Url($fid=5){}
+function getS3UrlByPath('path/to/file'){}
+```
+
+
+## Sample Usage
+
+* Need to add column such as fid_photo, fid_photo_2 in source table to store fid
 
 ```php
 ...
 use LaravelFileHandler;
 ...
+class TestController{
+	...
+	function save(){
+		$profile_image = $request->file('profile_image');
+		$user_id = auth()->id();
 
-function save(){
-    $profile_image = $request->file('profile_image');
-    $user_id = auth()->id();
+		$file_extension = getInputFileExtension('profile_image');
+		$file_handle = LaravelFileHandler::set([
+			'filename' => 'optional_image_path/' . $user_id . '/profile',
+			'content' => $profile_image,
+			'model_name' => '\App\Models\User',
+			'model_primary_key' => 'id',
+			'model_column' => 'profile_photo_fid',
+			'uploader_name' => auth()->user()->name,
+		])->upload();
 
-    $file_extension = getInputFileExtension('profile_image');
-    $file_handle = LaravelFileHandler::set([
-        'filename' => 'optional_image_path/' . $user_id . '/profile',
-        'content' => $profile_image,
-        'model_name' => '\App\Models\User',
-        'model_primary_key' => 'id',
-        'model_column' => 'profile_photo_fid',
-        'uploader_name' => auth()->user()->name,
-    ])->upload();
-
-    User::find($user_id)->fill(['photo_fid' => $file_handle->fid])->save();
+		User::find($user_id)->fill(['photo_fid' => $file_handle->fid])->save();
+	}
+	...
 }
+
 
 ```
 
 ## Some Helper functions for S3
 ```php
-function getS3Path($fid)
-{
-    $file = FileHandle::find($fid);
-    if ($file == null) {
-        return null;
-    } else {
-        return $file->filepath;
-    }
-}
+# Helper Function to retrieve file on S3
 
-// get s3 content url by fid
-// can use to view images
-function getS3Url($fid)
-{
-    $file = FileHandle::find($fid);
-    if ($file == null) {
-        return null;
-    } else {
-        return Storage::disk('s3')->temporaryUrl($file->filepath, now()->addMinutes(5));
-    }
-}
+$path =  LaravelFileHandler::getS3Path($fid=5);
+$s3_file_url =  LaravelFileHandler::getS3Url($fid=5);
+$s3_file_url =  LaravelFileHandler::getS3UrlByPath('path/to/file');
 
-//get s3 content url by s3 path
-function getS3UrlByPath($path)
-{
-    return Storage::disk('s3')->temporaryUrl($path, now()->addMinutes(5));
-}
+# if you are not using 's3' in config
+# you need to use setDisk function
+$s3_file_url = LaravelFileHandler::setDisk('s3')->getS3Path($fid=5)
+	
 ```
 
 
@@ -135,13 +151,11 @@ Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recen
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-### Security
 
-If you discover any security related issues, please email yuguan@caritech.com instead of using the issue tracker.
 
 ## Credits
 
--   [YG Thor](https://github.com/caritech)
+-   [YG Thor](https://github.com/ygthor)
 -   [All Contributors](../../contributors)
 
 ## License
