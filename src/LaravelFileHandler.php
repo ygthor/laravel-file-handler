@@ -12,6 +12,7 @@ class LaravelFileHandler
     public $status = 'permanent'; // upload status: default permanent, can user defined
     public $filename;
     public $content;
+    public $override_if_exists;
     public $model_name;
     public $model_primary_key; //should be id
     public $model_column; //column used to store fid
@@ -47,6 +48,11 @@ class LaravelFileHandler
         $this->content = $value;
         return $this;
     }
+    public function setOverrideIfExists($value)
+    {
+        $this->content = $value;
+        return $this;
+    }
     public function set($arr)
     {
         $this->disk = $arr['disk'] ?? 's3';
@@ -57,6 +63,7 @@ class LaravelFileHandler
         $this->model_column = $arr['model_column'] ?? null;
         $this->uploader_name = $arr['uploader_name'] ?? null;
         $this->status = $arr['status'] ?? 'permanent';
+        $this->override_if_exists = $arr['override_if_exists'] ?? true;
 
         return $this;
     }
@@ -143,6 +150,16 @@ class LaravelFileHandler
         return $this->upload($filename, $content);
     }
 
+    public function delete($fid){
+        $path = $this->getS3Path($fid);
+        if($path == null){
+            return false;
+        }
+        \Storage::disk($this->disk)->delete($path);
+        FileHandle::find($fid)->delete();
+        return true;
+    }
+
 
     public function getMineType($filename = null)
     {
@@ -203,5 +220,10 @@ class LaravelFileHandler
     function getS3UrlByPath($path)
     {
         return Storage::disk($this->disk)->temporaryUrl($path, now()->addMinutes(5));
+    }
+
+
+    function exists($path){
+        return Storage::disk($this->disk)->exists($path);
     }
 }

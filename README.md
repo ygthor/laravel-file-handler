@@ -1,4 +1,4 @@
-# Very short description of the package
+# Documentation
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/ygthor/laravel-file-handler.svg?style=flat-square)](https://packagist.org/packages/ygthor/laravel-file-handler)
 [![Total Downloads](https://img.shields.io/packagist/dt/ygthor/laravel-file-handler.svg?style=flat-square)](https://packagist.org/packages/ygthor/laravel-file-handler)
@@ -51,7 +51,7 @@ AWS_ENDPOINT="https://ap-south-1.linodeobjects.com"
 AWS_USE_PATH_STYLE_ENDPOINT=false
 ```
 
-### update config/filesystems.php if not match
+### update config/filesystems.php (if not match)
 ```
 's3' => [
     'driver' => 's3',
@@ -90,6 +90,12 @@ function set($arr){}
 # use after set()
 function upload($filename=null, $content=null){}
 
+# check file exist in S3 server
+function exists($filename){}
+
+# delete file in file_handles and S3 server
+function delete($fid){}
+
 function getS3Path($fid=5){}
 function getS3Url($fid=5){}
 function getS3UrlByPath('path/to/file'){}
@@ -110,7 +116,6 @@ class TestController{
 		$profile_image = $request->file('profile_image');
 		$user_id = auth()->id();
 
-		$file_extension = getInputFileExtension('profile_image');
 		$file_handle = LaravelFileHandler::set([
 			'filename' => 'optional_image_path/' . $user_id . '/profile',
 			'content' => $profile_image,
@@ -135,6 +140,12 @@ class TestController{
 $path =  LaravelFileHandler::getS3Path($fid=5);
 $s3_file_url =  LaravelFileHandler::getS3Url($fid=5);
 $s3_file_url =  LaravelFileHandler::getS3UrlByPath('path/to/file');
+
+$is_exists = LaravelFileHandler::exists($file_path);
+ 
+ //return true if delete success
+ //retrun false if fid not found / path not found
+$status = LaravelFileHandler::delete($fid=5);
 
 # if you are not using 's3' in config
 # you need to use setDisk function
