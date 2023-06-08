@@ -18,6 +18,7 @@ class LaravelFileHandler
     public $model_column; //column used to store fid
     public $uploader_name; //column used to store fid
 
+    public $storage_directory;
     // if true, when same name appear, override
     // if false, add timestamp to filename
     public $replace; //TODO
@@ -35,6 +36,11 @@ class LaravelFileHandler
     public function setDisk($disk)
     {
         $this->disk = $disk ?? 's3'; // default as s3
+        return $this;
+    }
+    public function setStorageDirectory($storage_directory)
+    {
+        $this->storage_directory = $storage_directory ?? '/'; // default as root
         return $this;
     }
 
@@ -55,14 +61,15 @@ class LaravelFileHandler
     }
     public function set($arr)
     {
-        $this->disk = $arr['disk'] ?? 's3';
+        // $this->disk = $arr['disk'] ?? 's3';
+        // $this->status = $arr['status'] ?? 'permanent';
+
         $this->filename = $arr['filename'] ?? null;
         $this->content = $arr['content'] ?? null;
         $this->model_name = $arr['model_name'] ?? null;
         $this->model_primary_key = $arr['model_primary_key'] ?? null;
         $this->model_column = $arr['model_column'] ?? null;
         $this->uploader_name = $arr['uploader_name'] ?? null;
-        $this->status = $arr['status'] ?? 'permanent';
         $this->override_if_exists = $arr['override_if_exists'] ?? true;
 
         return $this;
@@ -85,7 +92,15 @@ class LaravelFileHandler
                 'message' => 'Content cannot be empty'
             ];
         }
+        if (!$this->override_if_exists) {
+            $datetime = date('Ymd_His'); // Format: YearMonthDay_HourMinuteSecond
+            $extension = pathinfo($filename, PATHINFO_EXTENSION); // Get the file extension
+            $basename = pathinfo($filename, PATHINFO_FILENAME); // Get the filename without extension
+            $filename = $basename . '_' . $datetime . '.' . $extension;
+        }
 
+        $filename = $this->storage_directory . '/' . date('Ym') . '/' . $filename;
+        $filename = str_replace('//', '/', $filename);
         $filename_arr = explode('/', $filename); //last array
         $real_filename = end($filename_arr);
         $real_file_ext_arr = explode('.', $real_filename);
@@ -94,7 +109,6 @@ class LaravelFileHandler
         } else {
             $real_file_ext = null;
         }
-
 
         $status = Storage::disk($this->disk)->put($filename, $content);
 
@@ -133,10 +147,9 @@ class LaravelFileHandler
             if ($real_file_ext == null) {
                 $update_arr['file_ext'] = MapMineTypeToExtension::getExtension($mine_type);
             }
-
             FileHandle::find($f->fid)->update($update_arr);
 
-
+            $f = FileHandle::find($f->fid);
             return $f;
         } else {
             dump($status);
@@ -150,11 +163,18 @@ class LaravelFileHandler
         return $this->upload($filename, $content);
     }
 
-    public function delete($fid){
-        $path = $this->getS3Path($fid);
-        if($path == null){
-            return false;
+    public function delete($fid)
+    {
+        if ($this->disk == 's3') {
+            $path = $this->getS3Path($fid);
+            if ($path == null) {
+                return false;
+            }
+        }else{
+            $info = $this->getInfo($fid);
+            $path = $info->filepath;
         }
+
         \Storage::disk($this->disk)->delete($path);
         FileHandle::find($fid)->delete();
         return true;
@@ -192,6 +212,21 @@ class LaravelFileHandler
             return false;
         }
     }
+    public function getByFid($fid)
+    {
+        $file = FileHandle::find($fid);
+        if ($file == null) {
+            return null;
+        } else {
+            $path = $file->filepath;
+            return $this->get($path);
+        }
+    }
+    public function getInfo($fid)
+    {
+        $file = FileHandle::find($fid);
+        return $file;
+    }
 
 
     function getS3Path($fid)
@@ -223,7 +258,8 @@ class LaravelFileHandler
     }
 
 
-    function exists($path){
+    function exists($path)
+    {
         return Storage::disk($this->disk)->exists($path);
     }
 }
