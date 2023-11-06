@@ -92,14 +92,16 @@ class LaravelFileHandler
                 'message' => 'Content cannot be empty'
             ];
         }
+        $extension = pathinfo($filename, PATHINFO_EXTENSION); // Get the file extension
+        $basename = pathinfo($filename, PATHINFO_FILENAME); // Get the filename without extension
+        $dirname = pathinfo($filename, PATHINFO_DIRNAME); // Get the directory path
+
         if (!$this->override_if_exists) {
             $datetime = date('Ymd_His'); // Format: YearMonthDay_HourMinuteSecond
-            $extension = pathinfo($filename, PATHINFO_EXTENSION); // Get the file extension
-            $basename = pathinfo($filename, PATHINFO_FILENAME); // Get the filename without extension
-            $filename = $basename . '_' . $datetime . '.' . $extension;
+            $filename = $dirname . '/' . $basename . '_' . $datetime . '.' . $extension; // Create the new filename with a timestamp and the original path
         }
-
-        $filename = $this->storage_directory . '/' . date('Ym') . '/' . $filename;
+        
+        // $filename = $dirname . '/' . $filename;
         $filename = str_replace('//', '/', $filename);
         $filename_arr = explode('/', $filename); //last array
         $real_filename = end($filename_arr);
